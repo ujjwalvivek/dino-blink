@@ -1,4 +1,4 @@
-# Dino Blink 🦕⚡
+# Dino Blink: A WASM Artifact
 
 [![npm](https://img.shields.io/npm/v/@ujjwalvivek/dino-blink?style=for-the-badge&color=95c85a)](https://www.npmjs.com/package/@ujjwalvivek/dino-blink)
 [![GitHub release](https://img.shields.io/github/v/release/ujjwalvivek/dino-blink?style=for-the-badge&color=7fc4b8)](https://github.com/ujjwalvivek/dino-blink/releases)

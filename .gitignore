@@ -1,5 +1,5 @@
 # Rust target directory
 target/
 
-# wasm-pack build output (generated — rebuild with: wasm-pack build --target web --scope ujjwalvivek)
+# wasm-pack build output 
 pkg/
