@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dino Blink</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      z-index: 999;
+      transition: opacity 0.3s ease;
+    }
+    #loader.out { opacity: 0; pointer-events: none; }
+    #loader-name {
+      font-size: 18px;
+      letter-spacing: 0.22em;
+      color: #95c85a;
+      text-transform: uppercase;
+    }
+    #loader-title {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      color: #c8d8d4;
+    }
+    #loader-track {
+      width: 400px;
+      height: 3px;
+      background: #2a532b;
+      position: relative;
+      overflow: hidden;
+    }
+    #loader-bar {
+      position: absolute;
+      top: 0; left: 0;
+      height: 3px;
+      background: #95c85a;
+      animation: sweep 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes sweep {
+      0%   { left: -40%; width: 40%; }
+      60%  { left: 100%; width: 40%; }
+      100% { left: 100%; width: 40%; }
+    }
+    #loader-status {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: #b3cc96;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div id="loader">
+    <div id="loader-name">Dino Blink</div>
+    <div id="loader-title">Created in Journey Engine</div>
+    <div id="loader-track"><div id="loader-bar"></div></div>
+    <div id="loader-status">Starting Game...</div>
+  </div>
+  <script type="module">
+    const LOCAL = './pkg/dino_blink.js';
+    const CDN   = 'https://cdn.jsdelivr.net/npm/@ujjwalvivek/dino-blink@latest/dino_blink.js';
+    let mod;
+    try {
+      const probe = await fetch(LOCAL, { method: 'HEAD' });
+      if (!probe.ok) throw 0;
+      mod = await import(LOCAL);
+    } catch {
+      mod = await import(CDN);
+    }
+    await mod.default();
+    const loader = document.getElementById('loader');
+    if (loader) { loader.classList.add('out'); setTimeout(() => loader.remove(), 350); }
+  </script>
+</body>
+</html>

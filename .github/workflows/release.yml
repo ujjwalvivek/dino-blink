@@ -1,0 +1,102 @@
+name: Release and Publish WASM to NPM
+
+on:
+   push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Rust
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build WASM
+        run: wasm-pack build --target web --release
+
+      - name: Version package
+        working-directory: pkg
+        run: |
+          npm pkg set name="@ujjwalvivek/dino-blink"
+          npm pkg set version="${GITHUB_REF#refs/tags/v}"
+
+      - name: Get version
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Prepare release zip
+        run: |
+          VERSION=${{ steps.ver.outputs.version }}
+          mkdir -p release
+          sed "s|@ujjwalvivek/dino-blink@[^/]*/|@ujjwalvivek/dino-blink@${VERSION}/|g" \
+            index.html > release/index.html
+          cd release && zip ../dino-blink-${VERSION}.zip index.html
+
+      - name: Setup Node (npm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm for OIDC support
+        run: npm install -g npm@latest
+
+      - name: Publish to npm
+        working-directory: pkg
+        run: npm publish --provenance --access public
+
+      - name: Setup Node (GitHub Packages)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Publish to GitHub Packages
+        working-directory: pkg
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dino-blink-${{ steps.ver.outputs.version }}.zip
+          generate_release_notes: true
+          name: "dino-blink v${{ steps.ver.outputs.version }}"
+          body: |
+            ## ✨ dino-blink v${{ steps.ver.outputs.version }}
+
+            ### Play
+            - **Web (npm):** `npm install @ujjwalvivek/dino-blink@${{ steps.ver.outputs.version }}`
+            - **Standalone:** download `dino-blink-${{ steps.ver.outputs.version }}.zip`, unzip, open `index.html` with a local server
+
+            ### CDN embed
+            ```html
+            <script type="module">
+              import init from 'https://cdn.jsdelivr.net/npm/@ujjwalvivek/dino-blink@${{ steps.ver.outputs.version }}/dino_blink.js';
+              await init();
+            </script>
+            ```
