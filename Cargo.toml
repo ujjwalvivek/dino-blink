@@ -1,6 +1,6 @@
 [package]
 name = "dino-blink"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 description = "Retro infinite runner. Blink through chaos like a warlock. A WASM Artifact"
 license = "MIT"
@@ -21,8 +21,16 @@ path = "src/main.rs"
 [dependencies]
 engine = { package = "journey-engine", version = "1.1.2" }
 
+# Size: the same release settings as the portfolio's header game. The engine stays at 1.1.2 on purpose.
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
 [package.metadata.wasm-pack.profile.release]
-wasm-opt = false
+wasm-opt = ["-Oz", "--enable-bulk-memory", "--enable-nontrapping-float-to-int"]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2"
