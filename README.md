@@ -56,9 +56,9 @@ npx serve .
 
 ## Technical Details
 
-- **Size:** 6MB (WASM binary + JS bindings)
-- **LOC**: 500 lines of Code
-- **Engine:** Journey Engine (custom Rust game framework)
+- **Size:** 3.7MB (3.6MB WASM binary + 99KB JS bindings), 1.8MB over the wire with brotli
+- **LOC**: about 480 lines of Code
+- **Engine:** Journey Engine 1.1.2 (custom Rust game framework), kept at that version on purpose
 - **Target:** WebAssembly (ES6 modules)
 
 ## License
